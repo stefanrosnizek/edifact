@@ -28,7 +28,7 @@ class Parser
     /**
      * @var string
      */
-    private $stripChars = "/[\x01-\x1F\x80-\xFF]/"; // UNOB encoding set
+    private $stripChars;
 
     /**
      * @var string
@@ -112,15 +112,23 @@ class Parser
     private $unbChecked;
 
     /**
+     * @var bool : TRUE when UNB encondig should be used, FALSE if not
+     */
+    private $checkUnb;
+
+    /**
      * Parser constructor.
      *
      * @param null|string|string[] $url
+     * @param bool $checkUnb
      */
-    public function __construct($url = null)
+    public function __construct($url = null, $checkUnb = true)
     {
         if ($this->unaChecked !== false) {
             $this->resetUNA();
         }
+
+        $this->checkUnb = $checkUnb;
 
         if ($this->unbChecked !== false) {
             $this->resetUNB();
@@ -182,7 +190,9 @@ class Parser
 
             // Basic sanitization, remove non printable chars.
             $lineTrim = \trim($line);
-            $line = \preg_replace($this->stripChars, '', $lineTrim);
+            if (isset($this->stripChars)) {
+                $line = \preg_replace($this->stripChars, '', $lineTrim);
+            }
             $line_bytes = \strlen($line);
 
             if ($line_bytes !== \strlen($lineTrim)) {
@@ -201,7 +211,7 @@ class Parser
                     break;
                 case "UNB":
                     $line = $this->splitSegment($line);
-                    if (!$this->unbChecked) {
+                    if ($this->checkUnb && !$this->unbChecked) {
                         $this->analyseUNB($line[1]);
                     }
                     $this->parsedfile[] = $line;
@@ -353,6 +363,8 @@ class Parser
         }
 
         if (
+            $this->checkUnb
+            &&
             !$this->unbChecked
             &&
             \strpos($string, 'UNB') === 0
