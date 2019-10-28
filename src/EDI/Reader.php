@@ -25,11 +25,12 @@ class Reader
      * Reader constructor.
      *
      * @param string $url url or path ur EDI message
+     * @param bool $checkUnb
      */
-    public function __construct(string $url = null)
+    public function __construct(string $url = null, $checkUnb = true)
     {
         if (isset($url)) {
-            $this->load($url);
+            $this->load($url, $checkUnb);
         }
     }
 
@@ -62,11 +63,12 @@ class Reader
     /**
      * @param string $url url to edi file, path to edi file or EDI message
      *
+     * @param $checkUnb
      * @return bool
      */
-    public function load(string $url): bool
+    public function load(string $url, $checkUnb): bool
     {
-        $this->parsedfile = (new Parser($url))->get();
+        $this->parsedfile = (new Parser($url, $checkUnb))->get();
 
         return $this->preValidate();
     }
@@ -495,7 +497,7 @@ class Reader
             }
 
             $this->errors[] = 'Reading group ' . $before . '/' . $start . '/' . $end . '/' . $after
-                              . '. Error on position: ' . $position;
+                . '. Error on position: ' . $position;
 
             return false;
         }
