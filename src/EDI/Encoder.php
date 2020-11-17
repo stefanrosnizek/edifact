@@ -138,7 +138,22 @@ class Encoder
                     unset($temp);
                 }
 
-                $elm = \implode($this->sepComp, $iValue);
+               // implode (recursive)
+                    $elm = '';
+                    \array_walk_recursive(
+                        $iValue,
+                        function ($value) use (&$elm) {
+                            $elm .= $value . $this->sepComp;
+                        }
+                    );
+                    // removes last $glue from string
+                    if (
+                        $elm
+                        &&
+                        \strlen($this->sepComp) > 0
+                    ) {
+                        $elm = \substr($elm, 0, -\strlen($this->sepComp));
+                    }
             } else {
                 $elm = $this->escapeValue($iValue);
             }
@@ -228,7 +243,7 @@ class Encoder
      *
      * @return string
      */
-    private function escapeValue(&$str): string
+    private function escapeValue(&$strOrArray)
     {
         $search = [
             $this->symbRel,
@@ -243,6 +258,6 @@ class Encoder
             $this->symbRel . $this->symbEnd,
         ];
 
-        return \str_replace($search, $replace, (string) $str);
+        return \str_replace($search, $replace, $strOrArray);
     }
 }
