@@ -46,7 +46,6 @@
             "url": "https://github.com/php-edifact/edifact"
         }
     ],
-    "minimum-stability": "dev",
     "support": {
         "issues": "https://github.com/php-edifact/edifact/issues"
     }
